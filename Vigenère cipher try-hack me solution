@@ -1,0 +1,87 @@
+#include <iostream>
+#include <string>
+#include <cctype>
+using namespace std;
+
+// Function to generate a full key that matches the length of the input text
+string generateFullKey(const string& text, const string& key) {
+    string fullKey;
+    int keyIndex = 0;
+
+    for (char c : text) {
+        if (isalpha(c)) {
+            fullKey += key[keyIndex % key.length()];
+            keyIndex++;
+        } else {
+            fullKey += c;  // Preserve spaces, punctuation
+        }
+    }
+    return fullKey;
+}
+
+// Vigenère Encryption
+string encrypt(const string& plaintext, const string& key) {
+    string ciphertext = "";
+    string fullKey = generateFullKey(plaintext, key);
+
+    for (size_t i = 0; i < plaintext.length(); ++i) {
+        char p = plaintext[i];
+        char k = fullKey[i];
+
+        if (isalpha(p)) {
+            char base = isupper(p) ? 'A' : 'a';
+            char baseKey = isupper(k) ? 'A' : 'a';
+            char encryptedChar = (p - base + (k - baseKey)) % 26 + base;
+            ciphertext += encryptedChar;
+        } else {
+            ciphertext += p;
+        }
+    }
+    return ciphertext;
+}
+
+// Vigenère Decryption
+string decrypt(const string& ciphertext, const string& key) {
+    string plaintext = "";
+    string fullKey = generateFullKey(ciphertext, key);
+
+    for (size_t i = 0; i < ciphertext.length(); ++i) {
+        char c = ciphertext[i];
+        char k = fullKey[i];
+
+        if (isalpha(c)) {
+            char base = isupper(c) ? 'A' : 'a';
+            char baseKey = isupper(k) ? 'A' : 'a';
+            char decryptedChar = (c - base - (k - baseKey) + 26) % 26 + base;
+            plaintext += decryptedChar;
+        } else {
+            plaintext += c;
+        }
+    }
+    return plaintext;
+}
+
+int main() {
+    string plaintext =
+        "Beware the Jabberwock, my son!\n"
+        "The jaws that bite, the claws that catch!\n"
+        "Beware the Jubjub bird, and shun\n"
+        "The frumious Bandersnatch!";
+
+    string key = "ERTHEART";
+    string fullKey = generateFullKey(plaintext, key);
+
+    string ciphertext = encrypt(plaintext, key);
+    string decrypted = decrypt(ciphertext, key);
+
+    cout << "==============================\n";
+    cout << "Original Key: " << key << "\n";
+    cout << "Full Key (aligned):\n" << fullKey << "\n";
+    cout << "==============================\n\n";
+
+    cout << "Plaintext:\n" << plaintext << "\n\n";
+    cout << "Encrypted Text:\n" << ciphertext << "\n\n";
+    cout << "Decrypted Text:\n" << decrypted << "\n";
+
+    return 0;
+}
